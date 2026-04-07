@@ -2,6 +2,14 @@
 # 퀴즈 게임의 진입점(엔트리 포인트)
 # 이 파일을 실행하면 퀴즈 게임이 시작된다.
 
+import sys
+import io
+
+# Windows 환경에서 이모지 등 유니코드 출력이 깨지는 문제를 방지
+# 표준 출력과 표준 입력의 인코딩을 UTF-8로 강제 설정한다
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+
 from quiz_game import QuizGame
 
 
