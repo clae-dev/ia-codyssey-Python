@@ -103,9 +103,10 @@ class QuizGame:
         print('========================================')
         print('  1. 퀴즈 풀기')
         print('  2. 퀴즈 추가')
-        print('  3. 퀴즈 목록')
-        print('  4. 점수 확인')
-        print('  5. 종료')
+        print('  3. 퀴즈 삭제')
+        print('  4. 퀴즈 목록')
+        print('  5. 점수 확인')
+        print('  6. 종료')
         print('========================================')
 
     def play_quiz(self):
@@ -214,6 +215,33 @@ class QuizGame:
 
         print('----------------------------------------')
 
+    def delete_quiz(self):
+        """
+        등록된 퀴즈를 삭제하는 기능.
+        퀴즈 목록을 보여준 뒤 삭제할 번호를 입력받아 해당 퀴즈를 제거한다.
+        """
+        # 퀴즈가 없으면 안내 후 복귀
+        if not self.quizzes:
+            print('\n  📭 삭제할 퀴즈가 없습니다.')
+            return
+
+        # 현재 퀴즈 목록 표시
+        self.show_quiz_list()
+
+        # 삭제할 번호 입력
+        total = len(self.quizzes)
+        num = get_valid_input(f'\n  삭제할 퀴즈 번호 (1-{total}, 0: 취소): ', 0, total)
+
+        # 0 입력 시 취소
+        if num == 0:
+            print('  ↩️ 삭제를 취소했습니다.')
+            return
+
+        # 해당 퀴즈 삭제 (인덱스는 0부터이므로 -1)
+        removed = self.quizzes.pop(num - 1)
+        self.save_data()
+        print(f'\n  🗑️ [{num}] "{removed.question}" 퀴즈가 삭제되었습니다.')
+
     def show_score(self):
         """
         최고 점수를 확인하는 기능.
@@ -294,17 +322,19 @@ class QuizGame:
         try:
             while True:
                 self.show_menu()
-                choice = get_valid_input('  선택: ', 1, 5)
+                choice = get_valid_input('  선택: ', 1, 6)
 
                 if choice == 1:
                     self.play_quiz()
                 elif choice == 2:
                     self.add_quiz()
                 elif choice == 3:
-                    self.show_quiz_list()
+                    self.delete_quiz()
                 elif choice == 4:
-                    self.show_score()
+                    self.show_quiz_list()
                 elif choice == 5:
+                    self.show_score()
+                elif choice == 6:
                     # 정상 종료: 데이터 저장 후 종료 메시지
                     self.save_data()
                     print('\n  👋 퀴즈 게임을 종료합니다. 다음에 또 만나요!')
