@@ -5,6 +5,7 @@ import json
 import os
 import random
 import shutil
+from datetime import datetime
 
 from quiz import Quiz
 
@@ -91,6 +92,7 @@ class QuizGame:
         """
         self.quizzes = []           # Quiz 인스턴스 목록
         self.best_score = None      # 최고 점수 (None이면 아직 플레이 안 한 상태)
+        self.history = []           # 점수 기록 히스토리 (날짜, 문제 수, 점수)
         self.file_path = 'state.json'  # 데이터 저장 파일 경로
 
         # 프로그램 시작 시 저장된 데이터 불러오기
@@ -150,6 +152,15 @@ class QuizGame:
         # 점수 계산 (100점 만점 기준)
         score = int((correct_count / total) * 100)
 
+        # 히스토리에 기록 추가 (날짜/시간, 문제 수, 정답 수, 점수)
+        record = {
+            'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'total': total,
+            'correct': correct_count,
+            'score': score
+        }
+        self.history.append(record)
+
         print('\n========================================')
         print(f'  🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)')
 
@@ -157,7 +168,9 @@ class QuizGame:
         if self.best_score is None or score > self.best_score:
             self.best_score = score
             print('  🎉 새로운 최고 점수입니다!')
-            self.save_data()  # 최고 점수가 바뀌었으므로 저장
+
+        # 점수와 히스토리 저장
+        self.save_data()
         print('========================================')
 
     def add_quiz(self):
@@ -249,8 +262,22 @@ class QuizGame:
         """
         if self.best_score is None:
             print('\n  📊 아직 퀴즈를 풀지 않았습니다. 먼저 퀴즈를 풀어보세요!')
-        else:
-            print(f'\n  🏆 최고 점수: {self.best_score}점')
+            return
+
+        print(f'\n  🏆 최고 점수: {self.best_score}점')
+
+        # 히스토리가 있으면 최근 기록 표시
+        if self.history:
+            print(f'\n  📜 게임 기록 (총 {len(self.history)}회)')
+            print('  ----------------------------------------')
+            # 최근 기록부터 보여주기 (역순)
+            for record in reversed(self.history):
+                date = record['date']
+                total = record['total']
+                correct = record['correct']
+                score = record['score']
+                print(f'  {date} | {total}문제 중 {correct}정답 | {score}점')
+            print('  ----------------------------------------')
 
     def save_data(self):
         """
@@ -260,7 +287,8 @@ class QuizGame:
         # 저장할 데이터 구조 생성
         data = {
             'quizzes': [quiz.to_dict() for quiz in self.quizzes],
-            'best_score': self.best_score
+            'best_score': self.best_score,
+            'history': self.history
         }
 
         try:
@@ -287,9 +315,10 @@ class QuizGame:
             with open(self.file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
-            # JSON에서 Quiz 인스턴스 목록 복원
+            # JSON에서 Quiz 인스턴스 목록과 히스토리 복원
             self.quizzes = [Quiz.from_dict(q) for q in data.get('quizzes', [])]
             self.best_score = data.get('best_score', None)
+            self.history = data.get('history', [])
 
             # 불러온 데이터 정보 표시
             quiz_count = len(self.quizzes)
