@@ -16,27 +16,32 @@ DEFAULT_QUIZZES = [
     Quiz(
         question='Python에서 변수에 값을 저장할 때 사용하는 기호는?',
         choices=['==', '=', ':=', '->'],
-        answer=2
+        answer=2,
+        hint='비교 연산자(==)와 헷갈리지 않도록 주의하세요.'
     ),
     Quiz(
         question='다음 중 Python의 기본 자료형이 아닌 것은?',
         choices=['int', 'str', 'array', 'bool'],
-        answer=3
+        answer=3,
+        hint='Python에서는 리스트(list)를 기본으로 사용합니다.'
     ),
     Quiz(
         question='Python에서 리스트의 길이를 구하는 함수는?',
         choices=['size()', 'count()', 'len()', 'length()'],
-        answer=3
+        answer=3,
+        hint='length의 줄임말입니다.'
     ),
     Quiz(
         question='Python에서 여러 줄 주석을 작성할 때 주로 사용하는 것은?',
         choices=['/* */', '<!-- -->', "''' '''", '// //'],
-        answer=3
+        answer=3,
+        hint='작은따옴표 또는 큰따옴표를 세 번 연속 사용합니다.'
     ),
     Quiz(
         question='Python에서 "Hello"의 자료형은?',
         choices=['int', 'float', 'str', 'char'],
-        answer=3
+        answer=3,
+        hint='문자열(string)의 약자입니다.'
     ),
 ]
 
@@ -133,12 +138,24 @@ class QuizGame:
         print(f'\n📝 퀴즈를 시작합니다! (총 {total}문제)')
         print('----------------------------------------')
 
+        hint_penalty = 0  # 힌트 사용 시 감점할 총 점수
+
         # 랜덤으로 섞인 순서로 출제
         for i, quiz in enumerate(shuffled, 1):
             quiz.display(i)
 
-            # 정답 입력 받기 (1~4 범위)
-            answer = get_valid_input('  정답 입력: ', 1, 4)
+            # 힌트가 있으면 0도 허용 (0: 힌트 보기)
+            min_answer = 0 if quiz.hint else 1
+
+            # 정답 입력 받기
+            answer = get_valid_input('  정답 입력: ', min_answer, 4)
+
+            # 힌트 요청 처리 (0 입력 시)
+            if answer == 0 and quiz.hint:
+                print(f'  💡 힌트: {quiz.hint}')
+                hint_penalty += 10  # 힌트 사용 시 10점 감점
+                # 힌트를 본 후 다시 정답 입력
+                answer = get_valid_input('  정답 입력: ', 1, 4)
 
             # 정답 확인 후 결과 표시
             if quiz.check_answer(answer):
@@ -149,8 +166,9 @@ class QuizGame:
 
             print('----------------------------------------')
 
-        # 점수 계산 (100점 만점 기준)
-        score = int((correct_count / total) * 100)
+        # 점수 계산 (100점 만점 기준, 힌트 사용 시 감점 적용)
+        raw_score = int((correct_count / total) * 100)
+        score = max(0, raw_score - hint_penalty)  # 감점 후 최소 0점
 
         # 히스토리에 기록 추가 (날짜/시간, 문제 수, 정답 수, 점수)
         record = {
@@ -163,6 +181,8 @@ class QuizGame:
 
         print('\n========================================')
         print(f'  🏆 결과: {total}문제 중 {correct_count}문제 정답! ({score}점)')
+        if hint_penalty > 0:
+            print(f'  💡 힌트 사용으로 {hint_penalty}점 감점되었습니다.')
 
         # 최고 점수 갱신 여부 확인
         if self.best_score is None or score > self.best_score:
@@ -201,8 +221,11 @@ class QuizGame:
         # 정답 번호 입력 (1~4)
         answer = get_valid_input('  정답 번호 (1-4): ', 1, 4)
 
+        # 힌트 입력 (선택 사항, Enter로 건너뛸 수 있음)
+        hint = input('  힌트 (선택, Enter로 건너뛰기): ').strip()
+
         # 새 퀴즈 생성 후 목록에 추가
-        new_quiz = Quiz(question, choices, answer)
+        new_quiz = Quiz(question, choices, answer, hint)
         self.quizzes.append(new_quiz)
 
         # 추가 즉시 파일에 저장
