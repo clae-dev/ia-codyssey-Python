@@ -158,3 +158,5 @@ pull 후 README.md에 변경 내용이 정상 반영되었음을 확인했습니
 
 ### 점수 확인
 ![점수 확인](docs/screenshots/score.png)
+
+# clone 실습 완료
