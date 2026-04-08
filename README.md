@@ -147,9 +147,14 @@ pull 후 README.md에 변경 내용이 정상 반영되었음을 확인했습니
 
 ## 📸 실행 화면 스크린샷
 
-스크린샷은 `docs/screenshots/` 디렉터리에 저장합니다.
+### 메뉴 화면
+![메뉴 화면](docs/screenshots/menu.png)
 
-- `menu.png` - 메뉴 화면
-- `play.png` - 퀴즈 풀기 화면
-- `add_quiz.png` - 퀴즈 추가 화면
-- `score.png` - 점수 확인 화면
+### 퀴즈 풀기
+![퀴즈 풀기](docs/screenshots/play.png)
+
+### 퀴즈 추가
+![퀴즈 추가](docs/screenshots/add_quiz.png)
+
+### 점수 확인
+![점수 확인](docs/screenshots/score.png)
